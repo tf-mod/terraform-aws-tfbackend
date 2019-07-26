@@ -1,0 +1,7 @@
+aws_account_id          = "859086152267"
+aws_region              = "ap-northeast-2"
+aws_profile             = "my"
+bucket_name             = "my-terraform-state"
+dynamodb_table          = "my-terraform-lock"
+dynamodb_read_capacity  = "10"
+dynamodb_write_capacity = "10"
