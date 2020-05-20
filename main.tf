@@ -1,8 +1,10 @@
+data "aws_partition" "current" {}
+
 # DynamoDB table for lock info storage
 resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "${var.dynamodb_table}"
-  read_capacity  = "${var.dynamodb_read_capacity}"
-  write_capacity = "${var.dynamodb_write_capacity}"
+  name           = var.dynamodb_table
+  read_capacity  = var.dynamodb_read_capacity
+  write_capacity = var.dynamodb_write_capacity
   hash_key       = "LockID"
 
   attribute {
@@ -20,7 +22,7 @@ resource "aws_dynamodb_table" "terraform_lock" {
 
 # S3 bucket for storing terraform state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "${var.bucket_name}"
+  bucket = var.bucket_name
 
   versioning {
     enabled = true
@@ -28,8 +30,8 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  bucket = "${aws_s3_bucket.terraform_state.id}"
-  policy = "${data.aws_iam_policy_document.bucket_policy.json}"
+  bucket = aws_s3_bucket.terraform_state.id
+  policy = data.aws_iam_policy_document.bucket_policy.json
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -40,15 +42,15 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.bucket_name}/*",
-      "arn:aws:s3:::${var.bucket_name}",
+      format("arn:%s:s3:::%s/*", data.aws_partition.current.partition, var.bucket_name),
+      format("arn:%s:s3:::%s", data.aws_partition.current.partition, var.bucket_name),
     ]
 
     principals {
       type = "AWS"
 
       identifiers = [
-        "arn:aws:iam::${var.aws_account_id}:root",
+        format("arn:%s:iam::%s:root", data.aws_partition.current.partition, var.aws_account_id)
       ]
     }
   }
