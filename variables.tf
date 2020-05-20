@@ -19,3 +19,9 @@ variable "dynamodb_write_capacity" {
   description = "The write_capacity value for the DynamoDB table to store lock object"
   default     = 5
 }
+
+variable "tfbackends_opt" {
+  description = "The options for tfbackends. account_code for ARNs. China -> aws-cn, US GOV -> aws-us-gov"
+  type    = map(string)
+  default = {}
+}
