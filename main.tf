@@ -1,3 +1,5 @@
+data "aws_partition" "current" {}
+
 # DynamoDB table for lock info storage
 resource "aws_dynamodb_table" "terraform_lock" {
   name           = var.dynamodb_table
@@ -40,15 +42,15 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     resources = [
-      format("%s:s3:::%s/*", local.arn_prefix, var.bucket_name),
-      format("%s:s3:::%s", local.arn_prefix, var.bucket_name),
+      format("arn:%s:s3:::%s/*", data.aws_partition.current.partition, var.bucket_name),
+      format("arn:%s:s3:::%s", data.aws_partition.current.partition, var.bucket_name),
     ]
 
     principals {
       type = "AWS"
 
       identifiers = [
-        format("%s:iam::%s:root", local.arn_prefix, var.aws_account_id)
+        format("arn:%s:iam::%s:root", data.aws_partition.current.partition, var.aws_account_id)
       ]
     }
   }
